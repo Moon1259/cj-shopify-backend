@@ -1,0 +1,22 @@
+name: CJ Auto Sync 500
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'  # every 2 hours
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake Render and Sync 500 products
+        run: |
+          echo "Waking Render (free instance 50s delay)..."
+          curl -s -m 90 https://cj-shopify-backend.onrender.com/ > /dev/null || true
+          sleep 60
+          echo "Triggering sync..."
+          curl -s -X POST https://cj-shopify-backend.onrender.com/cron/sync \
+            -H "X-CRON-SECRET: ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json" \
+            --max-time 600
+          echo "Done"
