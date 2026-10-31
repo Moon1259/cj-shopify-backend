@@ -1,21 +1,29 @@
-name: CJ Auto Sync 500
+name: CJ to Shopify sync trigger
 
+# Once a day. The CJ points budget is per day, so more runs only waste wake-ups.
+# (Sync stops by itself when the day's points are used; extra runs cost 0 CJ points.)
 on:
   schedule:
-    - cron: '*/20 * * * *'
+    - cron: "15 7 * * *"      # 07:15 UTC
+    - cron: "15 19 * * *"     # 19:15 UTC, picks up what the first run could not afford
   workflow_dispatch:
 
 jobs:
-  sync:
+  trigger:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Wake Render and Sync 500 products
+      - name: Wake Render and start sync
+        env:
+          RENDER_URL: ${{ secrets.RENDER_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          echo "Waking Render (free instance 50s delay)..."
-          curl -s -m 90 https://cj-shopify-backend.onrender.com/ > /dev/null || true
-          sleep 60
-          echo "Triggering sync 40 products..."
-          curl -X POST "https://cj-shopify-backend.onrender.com/cron/sync?count=40" \
-            -H "X-CRON-SECRET: ${{ secrets.CRON_SECRET }}" \
-            --max-time 900
-          echo "Done"
+          curl -fsS --retry 6 --retry-delay 20 --retry-all-errors --max-time 90 \
+            -X POST "$RENDER_URL/cron/sync" -H "X-Cron-Secret: $CRON_SECRET"
+      - name: Retry orders that failed to reach CJ
+        env:
+          RENDER_URL: ${{ secrets.RENDER_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -fsS --retry 3 --retry-delay 10 --max-time 60 \
+            -X POST "$RENDER_URL/cron/retry-orders" -H "X-Cron-Secret: $CRON_SECRET"
