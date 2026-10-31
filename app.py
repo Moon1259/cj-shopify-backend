@@ -31,8 +31,10 @@ def env_i(name, default):
 # --------------------------------------------------------------------------- config
 CJ_API_KEY = os.getenv("CJ_API_KEY", "")
 CJ_BASE = "https://developers.cjdropshipping.com/api2.0/v1"
-SHOP_DOMAIN = os.getenv("SHOPIFY_STORE", "factory-essentials-2.myshopify.com")
-SHOP_TOKEN = os.getenv("SHOPIFY_TOKEN", "")
+SHOP_DOMAIN = os.getenv("SHOPIFY_STORE") or os.getenv("SHOPIFY_DOMAIN") or "factory-essentials-2.myshopify.com"
+SHOP_TOKEN = os.getenv("SHOPIFY_TOKEN", "")                  # legacy shpat_ token (optional, never expires)
+SHOP_CLIENT_ID = os.getenv("SHOPIFY_CLIENT_ID", "")          # Dev Dashboard app -> Settings -> Credentials
+SHOP_CLIENT_SECRET = os.getenv("SHOPIFY_CLIENT_SECRET", "")
 SHOP_API_VERSION = os.getenv("SHOPIFY_API_VERSION", "2026-07")
 SHOP_WEBHOOK_SECRET = os.getenv("SHOPIFY_WEBHOOK_SECRET", "")
 GH_TOKEN = os.getenv("GITHUB_TOKEN", "")
@@ -221,17 +223,37 @@ def estimate_shipping(grams):
 
 # --------------------------------------------------------------------------- Shopify client
 _shop_last = [0.0]
+_shop_tok = {"v": SHOP_TOKEN or None, "exp": 0 if (SHOP_CLIENT_ID and SHOP_CLIENT_SECRET) else float("inf")}
+
+
+def shop_token(force=False):
+    """Dev Dashboard apps: exchange client_id + client_secret for a 24h Admin API token (client credentials
+    grant) and renew it automatically. Falls back to a static shpat_ token if no client credentials are set."""
+    if SHOP_CLIENT_ID and SHOP_CLIENT_SECRET and (force or time.time() > _shop_tok["exp"] - 300):
+        r = requests.post(f"https://{SHOP_DOMAIN}/admin/oauth/access_token", timeout=30, json={
+            "grant_type": "client_credentials", "client_id": SHOP_CLIENT_ID, "client_secret": SHOP_CLIENT_SECRET})
+        if r.status_code >= 400:
+            raise RuntimeError(f"Shopify token exchange failed {r.status_code}: {r.text[:300]}")
+        j = r.json()
+        _shop_tok.update(v=j["access_token"], exp=time.time() + int(j.get("expires_in", 86399)))
+        log.info("shopify token refreshed; scopes: %s", j.get("scope"))
+    return _shop_tok["v"]
 
 
 def shop(method, path, body=None, params=None):
     url = f"https://{SHOP_DOMAIN}/admin/api/{SHOP_API_VERSION}{path}"
+    refreshed = False
     for _ in range(5):
         wait = 0.55 - (time.time() - _shop_last[0])
         if wait > 0:
             time.sleep(wait)
         _shop_last[0] = time.time()
         r = requests.request(method, url, json=body, params=params, timeout=45,
-                             headers={"X-Shopify-Access-Token": SHOP_TOKEN})
+                             headers={"X-Shopify-Access-Token": shop_token()})
+        if r.status_code == 401 and not refreshed and SHOP_CLIENT_ID:
+            shop_token(force=True)
+            refreshed = True
+            continue
         if r.status_code == 429:
             time.sleep(float(r.headers.get("Retry-After", 2)))
             continue
