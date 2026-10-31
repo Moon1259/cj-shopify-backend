@@ -4,8 +4,8 @@ name: CJ to Shopify sync trigger
 # (Sync stops by itself when the day's points are used; extra runs cost 0 CJ points.)
 on:
   schedule:
-    - cron: "15 7 * * *"      # 07:15 UTC
-    - cron: "15 19 * * *"     # 19:15 UTC, picks up what the first run could not afford
+    - cron: "15 7 * * *"   # 07:15 UTC
+    - cron: "15 19 * * *"  # 19:15 UTC, picks up what the first run could not afford
   workflow_dispatch:
 
 jobs:
@@ -18,12 +18,14 @@ jobs:
           RENDER_URL: ${{ secrets.RENDER_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl -fsS --retry 6 --retry-delay 20 --retry-all-errors --max-time 90 \
+          curl -fSs --retry 6 --retry-delay 20 --retry-all-errors --max-time 90 \
             -X POST "$RENDER_URL/cron/sync" -H "X-Cron-Secret: $CRON_SECRET"
+
       - name: Retry orders that failed to reach CJ
+        continue-on-error: true
         env:
           RENDER_URL: ${{ secrets.RENDER_URL }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          curl -fsS --retry 3 --retry-delay 10 --max-time 60 \
-            -X POST "$RENDER_URL/cron/retry-orders" -H "X-Cron-Secret: $CRON_SECRET"
+          curl -fSs --retry 3 --retry-delay 10 --max-time 60 \
+            -X POST "$RENDER_URL/cron/retry-orders" -H "X-Cron-Secret: $CRON_SECRET" || echo "retry-orders not deployed yet, skipping"
