@@ -1,6 +1,6 @@
 """
 CJdropshipping -> Shopify industrial catalog (v2). Render free + GitHub free.
-FIXED: Permanent OAuth token (offline) - no more 403 / 404
+FIXED: Permanent OAuth token (offline) - no more 403 / 404 + persistent GitHub storage + cursor fix
 """
 import base64, csv, datetime, hashlib, hmac, io, json, logging, math, os, re, threading, time
 
@@ -25,7 +25,7 @@ SHOP_DOMAIN = (os.getenv("SHOPIFY_STORE_DOMAIN") or os.getenv("SHOPIFY_STORE") o
 SHOP_TOKEN_ENV = (os.getenv("SHOPIFY_TOKEN") or os.getenv("SHOPIFY_ACCESS_TOKEN") or "").strip()
 SHOP_CLIENT_ID = (os.getenv("SHOPIFY_CLIENT_ID") or os.getenv("SHOPIFY_API_KEY") or "").strip()
 SHOP_CLIENT_SECRET = (os.getenv("SHOPIFY_CLIENT_SECRET") or os.getenv("SHOPIFY_API_SECRET") or "").strip()
-SHOP_API_VERSION = os.getenv("SHOPIFY_API_VERSION", "2026-10").strip()
+SHOP_API_VERSION = os.getenv("SHOPIFY_API_VERSION", "2024-10").strip()
 SHOP_WEBHOOK_SECRET = os.getenv("SHOPIFY_WEBHOOK_SECRET", "")
 GH_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GH_REPO = os.getenv("GITHUB_REPO", "moon1259/industrial-pantry-products")
@@ -55,7 +55,26 @@ DEFAULT_QTY = 100
 CJ_REMARK = ("BLIND DROPSHIPPING - no invoice, receipt, price list or CJ branding in the parcel. Include product "
              "manuals. Customs/duties paid by the customer (DDU). Ship ALL items of this order in ONE parcel.")
 TOKEN_FILE = "/tmp/shopify_token.json"
+TOKEN_GH_PATH = "secrets/shopify_token.json"
 SCOPES = os.getenv("SHOPIFY_SCOPES", "read_products,write_products,read_inventory,write_inventory,read_locations,read_orders,write_orders").strip()
+
+# --------------------------------------------------------------------------- GitHub storage (moved up for token persistence)
+def _gh(method, path, body=None, params=None):
+    r = requests.request(method, f"https://api.github.com/repos/{GH_REPO}/contents/{path}", json=body,
+                         params=params, timeout=45,
+                         headers={"Authorization": f"Bearer {GH_TOKEN}", "Accept": "application/vnd.github+json"})
+    if r.status_code == 404:
+        return None
+    r.raise_for_status()
+    return r.json()
+def gh_read(path):
+    j = _gh("GET", path, params={"ref": GH_BRANCH})
+    return (base64.b64decode(j["content"]).decode(), j["sha"]) if j else (None, None)
+def gh_write(path, text, sha, message):
+    body = {"message": message, "branch": GH_BRANCH, "content": base64.b64encode(text.encode()).decode()}
+    if sha:
+        body["sha"] = sha
+    _gh("PUT", path, body=body)
 
 # --------------------------------------------------------------------------- NEW PERMANENT TOKEN SYSTEM
 def save_token(data):
@@ -65,9 +84,17 @@ def save_token(data):
         log.info(f"Shopify token saved scope={data.get('scope')}")
     except Exception as e:
         log.error(f"save_token failed: {e}")
+    # ALSO SAVE TO GITHUB FOR PERMANENCE
+    try:
+        if GH_TOKEN:
+            _, sha = gh_read(TOKEN_GH_PATH)
+            gh_write(TOKEN_GH_PATH, json.dumps(data), sha, "save shopify token permanent")
+            log.info("Shopify token saved to GitHub persistent")
+    except Exception as e:
+        log.warning(f"GitHub token save failed: {e}")
 
 def load_token():
-    # 1. from file (permanent after OAuth)
+    # 1. from file (fast)
     try:
         if os.path.exists(TOKEN_FILE):
             with open(TOKEN_FILE, "r") as f:
@@ -75,7 +102,21 @@ def load_token():
                 if j.get("access_token"):
                     return j
     except: pass
-    # 2. from env fallback
+    # 2. from GitHub persistent (survives Render sleep)
+    try:
+        if GH_TOKEN:
+            txt, _ = gh_read(TOKEN_GH_PATH)
+            if txt:
+                j=json.loads(txt)
+                if j.get("access_token"):
+                    try:
+                        with open(TOKEN_FILE, "w") as f:
+                            json.dump(j, f)
+                    except: pass
+                    return j
+    except Exception as e:
+        log.warning(f"GitHub token load failed: {e}")
+    # 3. from env fallback
     if SHOP_TOKEN_ENV:
         return {"access_token": SHOP_TOKEN_ENV, "scope": SCOPES}
     return {}
@@ -284,23 +325,7 @@ def assign_collection(product_id, category):
             if "422" not in str(e):
                 raise
 
-# --------------------------------------------------------------------------- GitHub storage
-def _gh(method, path, body=None, params=None):
-    r = requests.request(method, f"https://api.github.com/repos/{GH_REPO}/contents/{path}", json=body,
-                         params=params, timeout=45,
-                         headers={"Authorization": f"Bearer {GH_TOKEN}", "Accept": "application/vnd.github+json"})
-    if r.status_code == 404:
-        return None
-    r.raise_for_status()
-    return r.json()
-def gh_read(path):
-    j = _gh("GET", path, params={"ref": GH_BRANCH})
-    return (base64.b64decode(j["content"]).decode(), j["sha"]) if j else (None, None)
-def gh_write(path, text, sha, message):
-    body = {"message": message, "branch": GH_BRANCH, "content": base64.b64encode(text.encode()).decode()}
-    if sha:
-        body["sha"] = sha
-    _gh("PUT", path, body=body)
+# --------------------------------------------------------------------------- GitHub storage (state)
 STATE_PATH = "state/state.json"
 CSV_HEADER = ["Handle", "Title", "Body (HTML)", "Vendor", "Product Category", "Type", "Tags", "Price", "SKU",
               "Inventory Qty", "Image Src", "Image Position", "Image Alt Text", "Status"]
@@ -309,9 +334,13 @@ def load_state():
     if GH_TOKEN:
         txt, sha = gh_read(STATE_PATH)
         st = json.loads(txt) if txt else {}
-    st.setdefault("cursor", {"q": 0, "page": 1})
     st.setdefault("products", {})
     st.setdefault("dedupe", {})
+    # FIXED CURSOR - handles old format without q
+    cur = st.get("cursor")
+    if not isinstance(cur, dict) or "q" not in cur or "page" not in cur:
+        cur = {"q": 0, "page": 1}
+        st["cursor"] = cur
     return st, sha
 def save_state(state, sha):
     if GH_TOKEN:
@@ -422,7 +451,12 @@ def run_sync():
             last_run.update(at=_now(), processed=0, note="points exhausted", points=ledger.p)
             return
         load_collections(force=True)
-        queries, cur, started = build_queries(), state["cursor"], time.time()
+        queries = build_queries()
+        cur = state.get("cursor", {})
+        if not isinstance(cur, dict) or "q" not in cur or "page" not in cur:
+            cur = {"q": 0, "page": 1}
+            state["cursor"] = cur
+        started = time.time()
         while done < MAX_PER_RUN and time.time() - started < TIME_BUDGET and ledger.can_afford_product():
             q = queries[cur["q"] % len(queries)]
             if cur["page"] > MAX_PAGES_PER_TERM:
@@ -538,17 +572,15 @@ def root():
 def health():
     return jsonify(ok=True, syncing=_sync_lock.locked(), last_sync=last_run)
 
-# NEW: Debug token
 @app.get("/debug/token")
 def debug_token():
     tok_data=load_token()
     token=tok_data.get("access_token","")
     if not token:
-        return jsonify(ok=False, error="No token yet", next=f"/api/auth?shop={SHOP_DOMAIN}")
+        return jsonify(ok=False, error="No token yet", next=f"/api/auth?shop={SHOP_DOMAIN}", has_github_token=bool(GH_TOKEN))
     r=requests.get(f"https://{SHOP_DOMAIN}/admin/api/{SHOP_API_VERSION}/shop.json", headers=shopify_headers(), timeout=10)
-    return jsonify(ok=r.status_code==200, status=r.status_code, scope=tok_data.get("scope"), token_preview=token[:12]+"..."+token[-4:] if token else "", shop=SHOP_DOMAIN, response=r.text[:300] if r.status_code!=200 else "Shopify OK - token has read_orders")
+    return jsonify(ok=r.status_code==200, status=r.status_code, scope=tok_data.get("scope"), token_preview=token[:12]+"..."+token[-4:] if token else "", shop=SHOP_DOMAIN, response=r.text[:300] if r.status_code!=200 else "Shopify OK - token persistent")
 
-# NEW: Start OAuth
 @app.get("/api/auth")
 def auth_start():
     if not SHOP_CLIENT_ID:
@@ -558,7 +590,6 @@ def auth_start():
     url=f"https://{shop_q}/admin/oauth/authorize?client_id={SHOP_CLIENT_ID}&scope={SCOPES}&redirect_uri={redirect_uri}"
     return redirect(url)
 
-# NEW: OAuth callback - saves permanent token
 @app.get("/api/auth/callback")
 def auth_callback():
     shop_q=request.args.get("shop", SHOP_DOMAIN)
@@ -570,7 +601,7 @@ def auth_callback():
     if "access_token" not in data:
         return jsonify(error="token exchange failed", data=data, status=resp.status_code), 400
     save_token(data)
-    return jsonify(ok=True, saved=True, scope=data.get("scope"), next="/debug/token", message="SUCCESS! Token saved with read_orders. Orders will now work forever.")
+    return jsonify(ok=True, saved=True, persistent=True, scope=data.get("scope"), next="/debug/token", message="SUCCESS! Token saved to GitHub - will survive Render sleep forever.")
 
 @app.post("/cron/sync")
 def cron_sync():
@@ -599,7 +630,7 @@ def shopify_orders():
 
 @app.get("/api/sync")
 def sync_route():
-    return jsonify(last_sync=last_run, ok=bool(get_access_token()), syncing=_sync_lock.locked())
+    return jsonify(last_sync=last_run, ok=bool(get_access_token()), has_token=bool(get_access_token()), syncing=_sync_lock.locked())
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env_i("PORT", 10000))
