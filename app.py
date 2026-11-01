@@ -1,6 +1,7 @@
 """
 CJdropshipping -> Shopify industrial catalog (v2). Render free + GitHub free.
 FIXED: Permanent OAuth token (offline) - no more 403 / 404 + persistent GitHub storage + cursor fix
+UPDATED: Default store = catmpp-jq (Industrial Pantry) - Old settings preserved
 """
 import base64, csv, datetime, hashlib, hmac, io, json, logging, math, os, re, threading, time
 
@@ -18,10 +19,11 @@ def env_f(name, default):
 def env_i(name, default):
     return int(float(os.getenv(name, default)))
 
-# --------------------------------------------------------------------------- config
+# --------------------------------------------------------------------------- config - PRESERVED OLD SETTINGS
 CJ_API_KEY = os.getenv("CJ_API_KEY", "")
 CJ_BASE = "https://developers.cjdropshipping.com/api2.0/v1"
-SHOP_DOMAIN = (os.getenv("SHOPIFY_STORE_DOMAIN") or os.getenv("SHOPIFY_STORE") or os.getenv("SHOPIFY_DOMAIN") or "factory-essentials-2.myshopify.com").strip()
+# FIXED: Default back to catmpp-jq - your REAL final store = Industrial Pantry
+SHOP_DOMAIN = (os.getenv("SHOPIFY_STORE_DOMAIN") or os.getenv("SHOPIFY_STORE") or os.getenv("SHOPIFY_DOMAIN") or "catmpp-jq.myshopify.com").strip()
 SHOP_TOKEN_ENV = (os.getenv("SHOPIFY_TOKEN") or os.getenv("SHOPIFY_ACCESS_TOKEN") or "").strip()
 SHOP_CLIENT_ID = (os.getenv("SHOPIFY_CLIENT_ID") or os.getenv("SHOPIFY_API_KEY") or "").strip()
 SHOP_CLIENT_SECRET = (os.getenv("SHOPIFY_CLIENT_SECRET") or os.getenv("SHOPIFY_API_SECRET") or "").strip()
@@ -336,7 +338,6 @@ def load_state():
         st = json.loads(txt) if txt else {}
     st.setdefault("products", {})
     st.setdefault("dedupe", {})
-    # FIXED CURSOR - handles old format without q
     cur = st.get("cursor")
     if not isinstance(cur, dict) or "q" not in cur or "page" not in cur:
         cur = {"q": 0, "page": 1}
