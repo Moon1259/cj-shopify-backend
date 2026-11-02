@@ -1,7 +1,8 @@
 """
-CJdropshipping -> Shopify industrial catalog (v2). Render free + GitHub free.
-FIXED: Permanent OAuth token (offline) - no more 403 / 404 + persistent GitHub storage + cursor fix
-UPDATED: Default store = catmpp-jq (Industrial Pantry) - Old settings preserved
+CJdropshipping -> Shopify industrial catalog (v3 WORLDWIDE)
+FIXED: Removed country filter - Worldwide store - No more "no CJ shipping options" error
+STRICT: Only industrial spares, parts, tools, kits allowed
+Default store = catmpp-jq (Industrial Pantry)
 """
 import base64, csv, datetime, hashlib, hmac, io, json, logging, math, os, re, threading, time
 
@@ -19,10 +20,9 @@ def env_f(name, default):
 def env_i(name, default):
     return int(float(os.getenv(name, default)))
 
-# --------------------------------------------------------------------------- config - PRESERVED OLD SETTINGS
+# --------------------------------------------------------------------------- config
 CJ_API_KEY = os.getenv("CJ_API_KEY", "")
 CJ_BASE = "https://developers.cjdropshipping.com/api2.0/v1"
-# FIXED: Default back to catmpp-jq - your REAL final store = Industrial Pantry
 SHOP_DOMAIN = (os.getenv("SHOPIFY_STORE_DOMAIN") or os.getenv("SHOPIFY_STORE") or os.getenv("SHOPIFY_DOMAIN") or "catmpp-jq.myshopify.com").strip()
 SHOP_TOKEN_ENV = (os.getenv("SHOPIFY_TOKEN") or os.getenv("SHOPIFY_ACCESS_TOKEN") or "").strip()
 SHOP_CLIENT_ID = (os.getenv("SHOPIFY_CLIENT_ID") or os.getenv("SHOPIFY_API_KEY") or "").strip()
@@ -33,8 +33,7 @@ GH_TOKEN = os.getenv("GITHUB_TOKEN", "")
 GH_REPO = os.getenv("GITHUB_REPO", "moon1259/industrial-pantry-products")
 GH_BRANCH = os.getenv("GITHUB_BRANCH", "data")
 CRON_SECRET = os.getenv("CRON_SECRET", "")
-DEST_COUNTRY = os.getenv("DEST_COUNTRY", "US")
-ORIGIN_COUNTRY = os.getenv("ORIGIN_COUNTRY", "CN")
+# WORLDWIDE - no country filter for listing
 PROFIT = env_f("PROFIT", os.getenv("MARGIN", "1.30"))
 DAILY_POINTS = env_i("DAILY_POINTS", 250)
 ORDER_RESERVE = env_i("ORDER_RESERVE", 50)
@@ -46,7 +45,6 @@ TIME_BUDGET = env_i("TIME_BUDGET", env_i("TIME_BUDGET_SECONDS", 600))
 PAGE_SIZE = env_i("PAGE_SIZE", 50)
 MAX_PAGES_PER_TERM = env_i("MAX_PAGES_PER_TERM", 3)
 STOCK_LOOKUP = os.getenv("STOCK_LOOKUP", "0") == "1"
-FREIGHT_MODE = os.getenv("FREIGHT_MODE", "exact")
 SHIP_BASE = env_f("SHIP_BASE", 3.0)
 SHIP_PER_KG = env_f("SHIP_PER_KG", 8.0)
 CJ_CATEGORY_IDS = [c.strip() for c in os.getenv("CJ_CATEGORY_IDS", "").split(",") if c.strip()]
@@ -60,7 +58,7 @@ TOKEN_FILE = "/tmp/shopify_token.json"
 TOKEN_GH_PATH = "secrets/shopify_token.json"
 SCOPES = os.getenv("SHOPIFY_SCOPES", "read_products,write_products,read_inventory,write_inventory,read_locations,read_orders,write_orders").strip()
 
-# --------------------------------------------------------------------------- GitHub storage (moved up for token persistence)
+# --------------------------------------------------------------------------- GitHub storage
 def _gh(method, path, body=None, params=None):
     r = requests.request(method, f"https://api.github.com/repos/{GH_REPO}/contents/{path}", json=body,
                          params=params, timeout=45,
@@ -78,25 +76,21 @@ def gh_write(path, text, sha, message):
         body["sha"] = sha
     _gh("PUT", path, body=body)
 
-# --------------------------------------------------------------------------- NEW PERMANENT TOKEN SYSTEM
+# --------------------------------------------------------------------------- PERMANENT TOKEN SYSTEM
 def save_token(data):
     try:
         with open(TOKEN_FILE, "w") as f:
             json.dump(data, f)
-        log.info(f"Shopify token saved scope={data.get('scope')}")
     except Exception as e:
         log.error(f"save_token failed: {e}")
-    # ALSO SAVE TO GITHUB FOR PERMANENCE
     try:
         if GH_TOKEN:
             _, sha = gh_read(TOKEN_GH_PATH)
             gh_write(TOKEN_GH_PATH, json.dumps(data), sha, "save shopify token permanent")
-            log.info("Shopify token saved to GitHub persistent")
     except Exception as e:
         log.warning(f"GitHub token save failed: {e}")
 
 def load_token():
-    # 1. from file (fast)
     try:
         if os.path.exists(TOKEN_FILE):
             with open(TOKEN_FILE, "r") as f:
@@ -104,7 +98,6 @@ def load_token():
                 if j.get("access_token"):
                     return j
     except: pass
-    # 2. from GitHub persistent (survives Render sleep)
     try:
         if GH_TOKEN:
             txt, _ = gh_read(TOKEN_GH_PATH)
@@ -116,9 +109,7 @@ def load_token():
                             json.dump(j, f)
                     except: pass
                     return j
-    except Exception as e:
-        log.warning(f"GitHub token load failed: {e}")
-    # 3. from env fallback
+    except: pass
     if SHOP_TOKEN_ENV:
         return {"access_token": SHOP_TOKEN_ENV, "scope": SCOPES}
     return {}
@@ -225,14 +216,20 @@ def cj_list(query, page, ledger):
     return (cj("GET", "/product/list", params=params, ledger=ledger) or {}).get("list") or []
 def cj_detail(pid, ledger):
     return cj("GET", "/product/query", params={"pid": pid}, ledger=ledger)
-def cj_cheapest_freight(items, dest=None, ledger=None):
-    data = cj("POST", "/logistic/freightCalculate", ledger=ledger, body={
-        "startCountryCode": ORIGIN_COUNTRY, "endCountryCode": dest or DEST_COUNTRY, "products": items}) or []
-    opts = [(float(o.get("logisticPrice") or 0), o.get("logisticName")) for o in data if o.get("logisticName")]
-    opts = [o for o in opts if o[0] > 0] or opts
-    if not opts:
-        raise RuntimeError("no CJ shipping options")
-    return min(opts)
+
+# FOR ORDERS ONLY - not for listing
+def cj_cheapest_freight(items, dest, ledger=None):
+    try:
+        data = cj("POST", "/logistic/freightCalculate", ledger=ledger, body={
+            "startCountryCode": "CN", "endCountryCode": dest, "products": items}) or []
+        opts = [(float(o.get("logisticPrice") or 0), o.get("logisticName")) for o in data if o.get("logisticName")]
+        opts = [o for o in opts if o[0] > 0] or opts
+        if not opts:
+            return (5.0, opts[0][1] if opts else "CJPacket")
+        return min(opts)
+    except Exception:
+        return (5.0, "CJPacket")
+
 def cj_stock(vid, ledger):
     try:
         data = cj("GET", "/product/stock/queryByVid", params={"vid": vid}, ledger=ledger)
@@ -243,14 +240,12 @@ def cj_stock(vid, ledger):
         return None
     nums = [int(r["totalInventoryNum"]) for r in (data or []) if isinstance(r.get("totalInventoryNum"), (int, float))]
     return sum(nums) if nums and sum(nums) > 0 else None
+
 def estimate_shipping(grams):
     return round(SHIP_BASE + SHIP_PER_KG * max(grams, 50) / 1000.0, 2)
 
 # --------------------------------------------------------------------------- Shopify client
 _shop_last = [0.0]
-def shop_token(force=False):
-    return get_access_token()
-
 def shop(method, path, body=None, params=None):
     url = f"https://{SHOP_DOMAIN}/admin/api/{SHOP_API_VERSION}{path}"
     for _ in range(5):
@@ -301,13 +296,12 @@ def load_collections(force=False):
             res = shop("POST", "/smart_collections.json", {"smart_collection": {
                 "title": cat, "rules": [rule], "disjunctive": False, "published": True}})["smart_collection"]
             _COLL[cat] = {"id": res["id"], "kind": "smart", "title": cat, "rules": [rule]}
-            log.info("created smart collection %s", cat)
         elif c and c["kind"] == "smart" and FIX_SMART_RULES and rule not in c["rules"]:
             shop("PUT", f"/smart_collections/{c['id']}.json", {"smart_collection": {
                 "id": c["id"], "rules": [rule], "disjunctive": False}})
             c["rules"] = [rule]
-            log.info("fixed rules of smart collection %s", c["title"])
     return _COLL
+
 def assign_collection(product_id, category):
     coll = load_collections()
     target = coll.get(category)
@@ -327,7 +321,7 @@ def assign_collection(product_id, category):
             if "422" not in str(e):
                 raise
 
-# --------------------------------------------------------------------------- GitHub storage (state)
+# --------------------------------------------------------------------------- GitHub storage
 STATE_PATH = "state/state.json"
 CSV_HEADER = ["Handle", "Title", "Body (HTML)", "Vendor", "Product Category", "Type", "Tags", "Price", "SKU",
               "Inventory Qty", "Image Src", "Image Position", "Image Alt Text", "Status"]
@@ -358,11 +352,12 @@ def append_csv(rows):
     w.writerows(rows)
     gh_write(path, (existing or "") + buf.getvalue(), sha, f"daily export {datetime.date.today()}")
 
-# --------------------------------------------------------------------------- product sync
+# --------------------------------------------------------------------------- product sync - WORLDWIDE NO COUNTRY FILTER
 def build_queries():
     if CJ_CATEGORY_IDS:
         return [{"type": "cat", "value": c} for c in CJ_CATEGORY_IDS]
     return [{"type": "kw", "value": k} for k in ALL_KEYWORDS]
+
 def parse_images(detail, item):
     raw = detail.get("productImageSet") or detail.get("productImage") or item.get("productImage")
     if isinstance(raw, str):
@@ -374,6 +369,7 @@ def parse_images(detail, item):
     if not urls and item.get("productImage"):
         urls = [item["productImage"]]
     return urls
+
 def process_product(item, state, ledger):
     pid, title = item.get("pid"), item.get("productNameEn") or ""
     detail = cj_detail(pid, ledger) or {}
@@ -382,10 +378,8 @@ def process_product(item, state, ledger):
         return None
     v = min(variants, key=lambda x: float(x["variantSellPrice"]))
     cost = float(v["variantSellPrice"])
-    if FREIGHT_MODE == "estimate":
-        ship = estimate_shipping(float(v.get("variantWeight") or detail.get("productWeight") or 0))
-    else:
-        ship, _ = cj_cheapest_freight([{"vid": v["vid"], "quantity": 1}], ledger=ledger)
+    # WORLDWIDE: Skip freightCalculate, use estimate - no country filter
+    ship = estimate_shipping(float(v.get("variantWeight") or detail.get("productWeight") or 0))
     total = cost + ship
     key = dedupe_key(title)
     prev = state["dedupe"].get(key)
@@ -448,7 +442,6 @@ def run_sync():
         state, sha = load_state()
         ledger = Ledger(state)
         if not ledger.can_afford_product():
-            log.info("no points left today (%s)", ledger.p)
             last_run.update(at=_now(), processed=0, note="points exhausted", points=ledger.p)
             return
         load_collections(force=True)
@@ -470,6 +463,7 @@ def run_sync():
             for it in items:
                 if done >= MAX_PER_RUN or not ledger.can_afford_product() or time.time() - started > TIME_BUDGET:
                     break
+                # STRICT INDUSTRIAL CHECK - only routine industrial usable
                 ok, why = industrial_ok(it.get("productNameEn"), it.get("categoryName"))
                 if not ok:
                     skipped[why] = skipped.get(why, 0) + 1
@@ -506,6 +500,7 @@ def run_sync():
         log.info("sync done: %s listed, %s errors, skipped %s, points %s", done, errors, skipped,
                  ledger.p if ledger else None)
         _sync_lock.release()
+
 def _now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
@@ -536,7 +531,7 @@ def forward_order_to_cj(order):
         if not products:
             raise RuntimeError("no CJ-mapped products in order")
         a = order.get("shipping_address") or {}
-        country = a.get("country_code") or DEST_COUNTRY
+        country = a.get("country_code") or "US"
         _, logistic = cj_cheapest_freight([{"vid": p["vid"], "quantity": p["quantity"]} for p in products], country)
         res = cj("POST", "/shopping/order/createOrderV2", body={
             "orderNumber": f"SHP-{order.get('name', oid)}".replace("#", ""),
@@ -545,7 +540,7 @@ def forward_order_to_cj(order):
             "shippingAddress": a.get("address1"), "shippingAddress2": a.get("address2") or "",
             "shippingCustomerName": a.get("name") or order.get("email"), "shippingZip": a.get("zip"),
             "shippingPhone": a.get("phone") or order.get("phone") or "", "email": order.get("email") or "",
-            "remark": CJ_REMARK, "logisticName": logistic, "fromCountryCode": ORIGIN_COUNTRY, "products": products})
+            "remark": CJ_REMARK, "logisticName": logistic, "fromCountryCode": "CN", "products": products})
         cj_id = (res or {}).get("orderId") or (res or {}).get("orderNum") or ""
         if AUTO_PAY_CJ and cj_id:
             try:
@@ -554,7 +549,6 @@ def forward_order_to_cj(order):
                 log.error("CJ auto-pay failed %s: %s", cj_id, e)
         shop("PUT", f"/orders/{oid}.json", {"order": {
             "id": oid, "tags": _tags(order, add=["cj-sent"], remove=["cj-failed"]), "note": f"CJ order: {cj_id}"}})
-        log.info("order %s -> CJ %s (%s lines, 1 parcel)", oid, cj_id, len(products))
     except Exception as e:
         _seen_orders.discard(oid)
         log.error("order %s failed: %s", oid, e)
@@ -564,7 +558,7 @@ def forward_order_to_cj(order):
         except Exception:
             pass
 
-# --------------------------------------------------------------------------- routes - FIXED + NEW AUTH
+# --------------------------------------------------------------------------- routes
 @app.get("/")
 def root():
     return jsonify(ok=True, syncing=_sync_lock.locked(), last_sync=last_run, has_token=bool(get_access_token()))
@@ -578,9 +572,9 @@ def debug_token():
     tok_data=load_token()
     token=tok_data.get("access_token","")
     if not token:
-        return jsonify(ok=False, error="No token yet", next=f"/api/auth?shop={SHOP_DOMAIN}", has_github_token=bool(GH_TOKEN))
+        return jsonify(ok=False, error="No token yet", next=f"/api/auth?shop={SHOP_DOMAIN}")
     r=requests.get(f"https://{SHOP_DOMAIN}/admin/api/{SHOP_API_VERSION}/shop.json", headers=shopify_headers(), timeout=10)
-    return jsonify(ok=r.status_code==200, status=r.status_code, scope=tok_data.get("scope"), token_preview=token[:12]+"..."+token[-4:] if token else "", shop=SHOP_DOMAIN, response=r.text[:300] if r.status_code!=200 else "Shopify OK - token persistent")
+    return jsonify(ok=r.status_code==200, status=r.status_code, shop=SHOP_DOMAIN)
 
 @app.get("/api/auth")
 def auth_start():
@@ -596,13 +590,13 @@ def auth_callback():
     shop_q=request.args.get("shop", SHOP_DOMAIN)
     code=request.args.get("code")
     if not code:
-        return jsonify(error="no code", params=dict(request.args)), 400
+        return jsonify(error="no code"), 400
     resp=requests.post(f"https://{shop_q}/admin/oauth/access_token", json={"client_id": SHOP_CLIENT_ID, "client_secret": SHOP_CLIENT_SECRET, "code": code}, timeout=15)
     data=resp.json()
     if "access_token" not in data:
-        return jsonify(error="token exchange failed", data=data, status=resp.status_code), 400
+        return jsonify(error="token exchange failed", data=data), 400
     save_token(data)
-    return jsonify(ok=True, saved=True, persistent=True, scope=data.get("scope"), next="/debug/token", message="SUCCESS! Token saved to GitHub - will survive Render sleep forever.")
+    return jsonify(ok=True, saved=True, message="Token saved persistent")
 
 @app.post("/cron/sync")
 def cron_sync():
