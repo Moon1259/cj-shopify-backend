@@ -1,6 +1,6 @@
 """
 CJdropshipping -> Shopify industrial catalog (v2). Render free + GitHub free.
-
+ 
 v2 changes
   * points ledger: every CJ call is charged against DAILY_POINTS; sync stops cleanly, orders keep a reserve
   * industrial-only gate (industrial.py): blacklist -> strong title term -> weak term + industrial CJ category
@@ -9,31 +9,31 @@ v2 changes
   * Cost per item saved on the Shopify inventory item (cost = CJ price + shipping)
 """
 import base64, csv, datetime, hashlib, hmac, io, json, logging, math, os, re, threading, time
-
+ 
 import requests
 from flask import Flask, abort, jsonify, request
-
+ 
 from industrial import (ALL_KEYWORDS, CATEGORY_NAMES, categorize, industrial_ok, match_collection_title)
 from industrial_strict_v3 import get_collection, industrial_check_v3
-
+ 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("cj-shopify")
-
-
+ 
+ 
 def env_f(name, default):
     return float(os.getenv(name, default))
-
-
+ 
+ 
 def env_i(name, default):
     return int(float(os.getenv(name, default)))
-
-
+ 
+ 
 def env_b(name, default="0"):
     """true / 1 / yes / on  (case-insensitive) -> True"""
     return str(os.getenv(name, default)).strip().lower() in ("1", "true", "yes", "on")
-
-
+ 
+ 
 # --------------------------------------------------------------------------- config
 CJ_API_KEY = os.getenv("CJ_API_KEY", "")
 CJ_BASE = "https://developers.cjdropshipping.com/api2.0/v1"
@@ -49,7 +49,7 @@ GH_BRANCH = os.getenv("GITHUB_BRANCH", "data")
 CRON_SECRET = os.getenv("CRON_SECRET", "")
 DEST_COUNTRY = os.getenv("DEST_COUNTRY", "US")
 ORIGIN_COUNTRY = os.getenv("ORIGIN_COUNTRY", "CN")
-
+ 
 PROFIT = env_f("PROFIT", os.getenv("MARGIN", "1.30"))          # price = (cost + shipping) * PROFIT
 DAILY_POINTS = env_i("DAILY_POINTS", 250)                      # what you believe CJ gives per day
 ORDER_RESERVE = env_i("ORDER_RESERVE", 50)                     # never spent by catalog sync
@@ -60,6 +60,7 @@ MAX_PER_RUN = env_i("MAX_PER_RUN", 40)
 TIME_BUDGET = env_i("TIME_BUDGET", env_i("TIME_BUDGET_SECONDS", 600))
 PAGE_SIZE = env_i("PAGE_SIZE", 50)                             # bigger page = more candidates per 10 points
 MAX_PAGES_PER_TERM = env_i("MAX_PAGES_PER_TERM", 3)
+MAX_SEARCH_PER_RUN = env_i("MAX_SEARCH_PER_RUN", 200)       # candidates examined per run (rejected ones cost 0 points)
 STOCK_LOOKUP = env_b("STOCK_LOOKUP", "0")
 FREIGHT_MODE = os.getenv("FREIGHT_MODE", "exact")              # exact = CJ freight call; estimate = weight formula
 SHIP_BASE = env_f("SHIP_BASE", 3.0)
@@ -71,11 +72,11 @@ AUTO_PAY_CJ = env_b("AUTO_PAY_CJ", "0")
 FILTER_VERSION = os.getenv("FILTER_VERSION", "v3")             # v3 = generic-only strict filter
 PRODUCT_STATUS = os.getenv("PRODUCT_STATUS", "active")          # "draft" = review in Shopify before going live
 DEFAULT_QTY = 100
-
+ 
 CJ_REMARK = ("BLIND DROPSHIPPING - no invoice, receipt, price list or CJ branding in the parcel. Include product "
              "manuals. Customs/duties paid by the customer (DDU). Ship ALL items of this order in ONE parcel.")
-
-
+ 
+ 
 # --------------------------------------------------------------------------- filter switch
 def gate(title, cj_category):
     """(allowed, reason) using the configured filter."""
@@ -83,38 +84,38 @@ def gate(title, cj_category):
         status, why = industrial_check_v3(title, cj_category)
         return status == "PURE", why
     return industrial_ok(title, cj_category)
-
-
+ 
+ 
 def pick_category(title):
     return get_collection(title) if FILTER_VERSION == "v3" else categorize(title)
-
-
+ 
+ 
 # --------------------------------------------------------------------------- pricing
 def final_price(cost: float, shipping: float) -> float:
     """(CJ price + shipping) * PROFIT, snapped to .99.   (10 + 5) * 1.30 = 19.50 -> 19.99"""
     return round(math.floor((cost + shipping) * PROFIT) + 0.99, 2)
-
-
+ 
+ 
 STOP = {"the", "a", "an", "for", "and", "of", "with", "in", "to", "new", "hot", "sale", "high", "quality"}
-
-
+ 
+ 
 def dedupe_key(title):
     toks = {t for t in re.findall(r"[a-z0-9]+", (title or "").lower()) if t not in STOP}
     return hashlib.md5(" ".join(sorted(toks)).encode()).hexdigest()
-
-
+ 
+ 
 def slug(s):
     return re.sub(r"[^a-z0-9]+", "-", (s or "").lower()).strip("-")[:90]
-
-
+ 
+ 
 # --------------------------------------------------------------------------- points ledger
 class PointsExhausted(Exception):
     pass
-
-
+ 
+ 
 class Ledger:
     """Daily CJ points. Persisted in state.json. Sync may spend (limit - ORDER_RESERVE); orders bypass it."""
-
+ 
     def __init__(self, state):
         today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
         p = state.setdefault("points", {})
@@ -125,47 +126,47 @@ class Ledger:
             if learned:
                 p["learned_limit"] = learned
         self.p = p
-
+ 
     @property
     def limit(self):
         if AUTO_CALIBRATE and self.p.get("learned_limit"):
             return min(DAILY_POINTS, self.p["learned_limit"])
         return DAILY_POINTS
-
+ 
     @property
     def remaining(self):
         return max(0, self.limit - ORDER_RESERVE - self.p["used"])
-
+ 
     def charge(self, n=POINTS_PER_CALL):
         if self.p["blocked"] or n > self.remaining:
             raise PointsExhausted(f"budget: used {self.p['used']}/{self.limit} (reserve {ORDER_RESERVE})")
         self.p["used"] += n
-
+ 
     def can_afford_product(self):
         need = POINTS_PER_PRODUCT + (POINTS_PER_CALL if STOCK_LOOKUP else 0)
         return not self.p["blocked"] and self.remaining >= need
-
+ 
     def cj_said_no(self):
         """CJ itself refused: our count was too optimistic. Learn from it."""
         self.p["blocked"] = True
         if AUTO_CALIBRATE and self.p["used"] > 0:
             self.p["learned_limit"] = self.p["used"] + ORDER_RESERVE
-
-
+ 
+ 
 # --------------------------------------------------------------------------- CJ client
 _cj_lock = threading.Lock()
 _cj_last = [0.0]
 _cj_token = {"value": None, "exp": 0}
-
-
+ 
+ 
 def _cj_throttle():
     with _cj_lock:
         wait = 1.15 - (time.time() - _cj_last[0])
         if wait > 0:
             time.sleep(wait)
         _cj_last[0] = time.time()
-
-
+ 
+ 
 def cj_token():
     if _cj_token["value"] and time.time() < _cj_token["exp"]:
         return _cj_token["value"]
@@ -175,11 +176,11 @@ def cj_token():
         raise RuntimeError(f"CJ auth failed: {j}")
     _cj_token.update(value=j["data"]["accessToken"], exp=time.time() + 14 * 24 * 3600)
     return _cj_token["value"]
-
-
+ 
+ 
 POINTS_MSG = re.compile(r"(insufficient|not enough|exceed|run out|no more).{0,30}point|point.{0,30}(insufficient|exhaust|limit)", re.I)
-
-
+ 
+ 
 def cj(method, path, params=None, body=None, ledger=None, retries=3):
     """ledger=None -> order path (not budgeted). ledger=Ledger -> charged BEFORE the call."""
     for attempt in range(retries):
@@ -204,18 +205,18 @@ def cj(method, path, params=None, body=None, ledger=None, retries=3):
             raise RuntimeError(f"CJ {path} error: {j.get('code')} {msg}")
         return j.get("data")
     raise RuntimeError(f"CJ {path}: rate-limited after retries")
-
-
+ 
+ 
 def cj_list(query, page, ledger):
     params = {"pageNum": page, "pageSize": PAGE_SIZE}
     params.update({"categoryId": query["value"]} if query["type"] == "cat" else {"productNameEn": query["value"]})
     return (cj("GET", "/product/list", params=params, ledger=ledger) or {}).get("list") or []
-
-
+ 
+ 
 def cj_detail(pid, ledger):
     return cj("GET", "/product/query", params={"pid": pid}, ledger=ledger)
-
-
+ 
+ 
 def cj_cheapest_freight(items, dest=None, ledger=None):
     data = cj("POST", "/logistic/freightCalculate", ledger=ledger, body={
         "startCountryCode": ORIGIN_COUNTRY, "endCountryCode": dest or DEST_COUNTRY, "products": items}) or []
@@ -224,8 +225,8 @@ def cj_cheapest_freight(items, dest=None, ledger=None):
     if not opts:
         raise RuntimeError("no CJ shipping options")
     return min(opts)
-
-
+ 
+ 
 def cj_stock(vid, ledger):
     try:
         data = cj("GET", "/product/stock/queryByVid", params={"vid": vid}, ledger=ledger)
@@ -236,17 +237,17 @@ def cj_stock(vid, ledger):
         return None
     nums = [int(r["totalInventoryNum"]) for r in (data or []) if isinstance(r.get("totalInventoryNum"), (int, float))]
     return sum(nums) if nums and sum(nums) > 0 else None
-
-
+ 
+ 
 def estimate_shipping(grams):
     return round(SHIP_BASE + SHIP_PER_KG * max(grams, 50) / 1000.0, 2)
-
-
+ 
+ 
 # --------------------------------------------------------------------------- Shopify client
 _shop_last = [0.0]
 _shop_tok = {"v": SHOP_TOKEN or None, "exp": 0 if (SHOP_CLIENT_ID and SHOP_CLIENT_SECRET) else float("inf")}
-
-
+ 
+ 
 def shop_token(force=False):
     """Dev Dashboard apps: exchange client_id + client_secret for a 24h Admin API token (client credentials
     grant) and renew it automatically. Falls back to a static shpat_ token if no client credentials are set."""
@@ -259,8 +260,8 @@ def shop_token(force=False):
         _shop_tok.update(v=j["access_token"], exp=time.time() + int(j.get("expires_in", 86399)))
         log.info("shopify token refreshed; scopes: %s", j.get("scope"))
     return _shop_tok["v"]
-
-
+ 
+ 
 def shop(method, path, body=None, params=None):
     url = f"https://{SHOP_DOMAIN}/admin/api/{SHOP_API_VERSION}{path}"
     refreshed = False
@@ -284,32 +285,32 @@ def shop(method, path, body=None, params=None):
             raise RuntimeError(f"Shopify {method} {path} -> {r.status_code}: {r.text[:300]}")
         return r.json() if r.text else {}
     raise RuntimeError("Shopify rate-limited after retries")
-
-
+ 
+ 
 _loc = {}
-
-
+ 
+ 
 def shop_location_id():
     if "id" not in _loc:
         _loc["id"] = shop("GET", "/locations.json")["locations"][0]["id"]
     return _loc["id"]
-
-
+ 
+ 
 def set_inventory(inv_item, qty):
     shop("POST", "/inventory_levels/set.json",
          {"location_id": shop_location_id(), "inventory_item_id": inv_item, "available": int(qty)})
-
-
+ 
+ 
 def set_cost(inv_item, cost):
     """Fills 'Cost per item' so Shopify shows profit/margin."""
     shop("PUT", f"/inventory_items/{inv_item}.json",
          {"inventory_item": {"id": inv_item, "cost": f"{cost:.2f}", "tracked": True}})
-
-
+ 
+ 
 # --------------------------------------------------------------------------- collections
 _COLL = {}
-
-
+ 
+ 
 def load_collections(force=False):
     """Map each of the 8 categories to YOUR existing collection (custom or smart); create smart ones if missing."""
     if _COLL and not force:
@@ -335,8 +336,8 @@ def load_collections(force=False):
             c["rules"] = [rule]
             log.info("fixed rules of smart collection %s", c["title"])
     return _COLL
-
-
+ 
+ 
 def assign_collection(product_id, category):
     """Put product in the collection of its category (and out of the other 7 custom ones).
     Smart collections need nothing: product_type == category already matches their rule."""
@@ -357,8 +358,8 @@ def assign_collection(product_id, category):
         except RuntimeError as e:
             if "422" not in str(e):
                 raise
-
-
+ 
+ 
 # --------------------------------------------------------------------------- GitHub storage
 def _gh(method, path, body=None, params=None):
     r = requests.request(method, f"https://api.github.com/repos/{GH_REPO}/contents/{path}", json=body,
@@ -368,25 +369,25 @@ def _gh(method, path, body=None, params=None):
         return None
     r.raise_for_status()
     return r.json()
-
-
+ 
+ 
 def gh_read(path):
     j = _gh("GET", path, params={"ref": GH_BRANCH})
     return (base64.b64decode(j["content"]).decode(), j["sha"]) if j else (None, None)
-
-
+ 
+ 
 def gh_write(path, text, sha, message):
     body = {"message": message, "branch": GH_BRANCH, "content": base64.b64encode(text.encode()).decode()}
     if sha:
         body["sha"] = sha
     _gh("PUT", path, body=body)
-
-
+ 
+ 
 STATE_PATH = "state/state.json"
 CSV_HEADER = ["Handle", "Title", "Body (HTML)", "Vendor", "Product Category", "Type", "Tags", "Price", "SKU",
               "Inventory Qty", "Image Src", "Image Position", "Image Alt Text", "Status"]
-
-
+ 
+ 
 def load_state():
     st, sha = {}, None
     if GH_TOKEN:
@@ -396,13 +397,13 @@ def load_state():
     st.setdefault("products", {})
     st.setdefault("dedupe", {})
     return st, sha
-
-
+ 
+ 
 def save_state(state, sha):
     if GH_TOKEN:
         gh_write(STATE_PATH, json.dumps(state, indent=1), sha, "sync state")
-
-
+ 
+ 
 def append_csv(rows):
     if not (GH_TOKEN and rows):
         return
@@ -414,15 +415,15 @@ def append_csv(rows):
         w.writerow(CSV_HEADER)
     w.writerows(rows)
     gh_write(path, (existing or "") + buf.getvalue(), sha, f"daily export {datetime.date.today()}")
-
-
+ 
+ 
 # --------------------------------------------------------------------------- product sync
 def build_queries():
     if CJ_CATEGORY_IDS:                                   # category crawl (see maintenance.py cj-categories)
         return [{"type": "cat", "value": c} for c in CJ_CATEGORY_IDS]
     return [{"type": "kw", "value": k} for k in ALL_KEYWORDS]
-
-
+ 
+ 
 def parse_images(detail, item):
     raw = detail.get("productImageSet") or detail.get("productImage") or item.get("productImage")
     if isinstance(raw, str):
@@ -434,8 +435,8 @@ def parse_images(detail, item):
     if not urls and item.get("productImage"):
         urls = [item["productImage"]]
     return urls
-
-
+ 
+ 
 def process_product(item, state, ledger):
     pid, title = item.get("pid"), item.get("productNameEn") or ""
     detail = cj_detail(pid, ledger) or {}
@@ -449,7 +450,7 @@ def process_product(item, state, ledger):
     else:
         ship, _ = cj_cheapest_freight([{"vid": v["vid"], "quantity": 1}], ledger=ledger)
     total = cost + ship                                           # <- what Shopify stores as "Cost per item"
-
+ 
     key = dedupe_key(title)                                       # cheapest-supplier logic
     prev = state["dedupe"].get(key)
     if prev and prev["pid"] != pid:
@@ -462,7 +463,7 @@ def process_product(item, state, ledger):
             except Exception as e:  # noqa
                 log.warning("could not delete superseded product: %s", e)
     state["dedupe"][key] = {"pid": pid, "total": total}
-
+ 
     sku = v.get("variantSku") or item.get("productSku") or pid
     category = pick_category(title)
     price = final_price(cost, ship)                               # (cost + shipping) * 1.30 -> .99
@@ -475,7 +476,7 @@ def process_product(item, state, ledger):
     tags = f"{sku}, {category}, industrial, cj-sync"
     images = parse_images(detail, item)
     handle = slug(f"{title}-{sku}")
-
+ 
     prod = {"title": title, "body_html": body_html, "vendor": vendor, "product_type": category,
             "tags": tags, "status": PRODUCT_STATUS, "handle": handle}
     var = {"price": f"{price:.2f}", "sku": sku, "barcode": v["vid"], "inventory_management": "shopify",
@@ -495,19 +496,19 @@ def process_product(item, state, ledger):
     set_cost(inv_item, total)
     set_inventory(inv_item, shop_qty)
     assign_collection(sid, category)
-
+ 
     rows = []
     for i, u in enumerate(images or [""]):
         rows.append([handle, title, body_html, vendor, "Hardware", category, tags, f"{price:.2f}", sku, shop_qty,
                      u, 1, title[:120], PRODUCT_STATUS] if i == 0 else
                     [handle, "", "", "", "", "", "", "", "", "", u, i + 1, title[:120], ""])
     return rows
-
-
+ 
+ 
 _sync_lock = threading.Lock()
 last_run = {}
-
-
+ 
+ 
 def run_sync():
     if not _sync_lock.acquire(blocking=False):
         return
@@ -522,21 +523,28 @@ def run_sync():
             return
         load_collections(force=True)
         queries, cur, started = build_queries(), state["cursor"], time.time()
-        while done < MAX_PER_RUN and time.time() - started < TIME_BUDGET and ledger.can_afford_product():
+        examined = 0
+        cur.setdefault("i", 0)                                     # resume position inside the current page
+        while done < MAX_PER_RUN and examined < MAX_SEARCH_PER_RUN and time.time() - started < TIME_BUDGET \
+                and ledger.can_afford_product():
             q = queries[cur["q"] % len(queries)]
             if cur["page"] > MAX_PAGES_PER_TERM:
-                cur.update(q=(cur["q"] + 1) % len(queries), page=1)
+                cur.update(q=(cur["q"] + 1) % len(queries), page=1, i=0)
                 continue
             items = cj_list(q, cur["page"], ledger)
             if not items:
-                cur.update(q=(cur["q"] + 1) % len(queries), page=1)
+                cur.update(q=(cur["q"] + 1) % len(queries), page=1, i=0)
                 continue
-            for it in items:
-                if done >= MAX_PER_RUN or not ledger.can_afford_product() or time.time() - started > TIME_BUDGET:
-                    break
+            for idx in range(cur["i"], len(items)):
+                it = items[idx]
+                if done >= MAX_PER_RUN or examined >= MAX_SEARCH_PER_RUN or not ledger.can_afford_product() \
+                        or time.time() - started > TIME_BUDGET:
+                    break                                          # cur["i"] still points at this unprocessed item
+                examined += 1
                 ok, why = gate(it.get("productNameEn"), it.get("categoryName"))
                 if not ok:                                         # rejected from the list row: 0 points spent
                     skipped[why] = skipped.get(why, 0) + 1
+                    cur["i"] = idx + 1
                     continue
                 try:
                     rows = process_product(it, state, ledger)
@@ -548,8 +556,9 @@ def run_sync():
                 except Exception as e:  # noqa
                     errors += 1
                     log.error("product %s failed: %s", it.get("pid"), e)
+                cur["i"] = idx + 1                                 # done with this item: never pay for it twice
             else:
-                cur["page"] += 1                                   # whole page consumed -> next page
+                cur.update(page=cur["page"] + 1, i=0)              # whole page consumed -> next page
     except PointsExhausted as e:
         log.warning("points exhausted: %s", e)
     except Exception as e:  # noqa
@@ -560,38 +569,39 @@ def run_sync():
             append_csv(csv_rows)
         except Exception as e:  # noqa
             log.error("csv push failed: %s", e)
+        last_run.update(at=_now(), processed=done, errors=errors, skipped=skipped,
+                        points=(ledger.p if ledger else None))
         if state is not None:
+            state["last_run"] = dict(last_run)
             try:
                 save_state(state, sha)
             except Exception as e:  # noqa
                 log.error("state save failed: %s", e)
-        last_run.update(at=_now(), processed=done, errors=errors, skipped=skipped,
-                        points=(ledger.p if ledger else None))
         log.info("sync done: %s listed, %s errors, skipped %s, points %s", done, errors, skipped,
                  ledger.p if ledger else None)
         _sync_lock.release()
-
-
+ 
+ 
 def _now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
-
-
+ 
+ 
 # --------------------------------------------------------------------------- orders (ONE CJ order, many products)
 _seen_orders = set()
-
-
+ 
+ 
 def verify_hmac(raw, header):
     if not SHOP_WEBHOOK_SECRET:
         return False
     digest = base64.b64encode(hmac.new(SHOP_WEBHOOK_SECRET.encode(), raw, hashlib.sha256).digest()).decode()
     return hmac.compare_digest(digest, header or "")
-
-
+ 
+ 
 def _tags(order, add=(), remove=()):
     cur = [t.strip() for t in (order.get("tags") or "").split(",") if t.strip()]
     return ", ".join([t for t in cur if t not in remove] + [t for t in add if t not in cur])
-
-
+ 
+ 
 def forward_order_to_cj(order):
     oid = order["id"]
     if oid in _seen_orders or "cj-sent" in (order.get("tags") or ""):
@@ -636,23 +646,55 @@ def forward_order_to_cj(order):
                 "id": oid, "tags": _tags(order, add=["cj-failed"]), "note": f"CJ forward failed: {e}"}})
         except Exception:  # noqa
             pass
-
-
+ 
+ 
 # --------------------------------------------------------------------------- routes
+_hydrated = [False]
+ 
+ 
+def _hydrate():
+    """After a Render restart last_run is empty; read the saved copy from GitHub once."""
+    if _hydrated[0] or last_run:
+        return
+    _hydrated[0] = True
+    try:
+        st, _ = load_state()
+        last_run.update(st.get("last_run") or {"points": st.get("points")})
+    except Exception as e:  # noqa
+        log.warning("health hydrate failed: %s", e)
+ 
+ 
+def points_summary(p):
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    p = p if (p and p.get("date") == today) else {"date": today, "used": 0, "blocked": False,
+                                                 "learned_limit": (p or {}).get("learned_limit")}
+    limit = min(DAILY_POINTS, p["learned_limit"]) if (AUTO_CALIBRATE and p.get("learned_limit")) else DAILY_POINTS
+    return {**p, "limit": limit, "sync_remaining": max(0, limit - ORDER_RESERVE - p["used"]),
+            "order_reserve": ORDER_RESERVE}
+ 
+ 
 @app.get("/")
 @app.get("/health")
 def health():
-    return jsonify(ok=True, syncing=_sync_lock.locked(), last_sync=last_run)
-
-
+    _hydrate()
+    return jsonify(ok=True, syncing=_sync_lock.locked(), shopify_store=SHOP_DOMAIN,
+                   points=points_summary(last_run.get("points")),
+                   config={"FILTER_VERSION": FILTER_VERSION, "PRODUCT_STATUS": PRODUCT_STATUS,
+                           "FREIGHT_MODE": FREIGHT_MODE, "MAX_PER_RUN": MAX_PER_RUN,
+                           "MAX_SEARCH_PER_RUN": MAX_SEARCH_PER_RUN, "DAILY_POINTS": DAILY_POINTS,
+                           "POINTS_PER_CALL": POINTS_PER_CALL, "POINTS_PER_PRODUCT": POINTS_PER_PRODUCT,
+                           "SHOPIFY_API_VERSION": SHOP_API_VERSION},
+                   last_sync={k: v for k, v in last_run.items() if k != "points"})
+ 
+ 
 @app.post("/cron/sync")
 def cron_sync():
     if not CRON_SECRET or request.headers.get("X-Cron-Secret") != CRON_SECRET:
         abort(401)
     threading.Thread(target=run_sync, daemon=True).start()
     return jsonify(started=True), 202
-
-
+ 
+ 
 @app.post("/cron/retry-orders")
 def retry_orders():
     if not CRON_SECRET or request.headers.get("X-Cron-Secret") != CRON_SECRET:
@@ -662,8 +704,8 @@ def retry_orders():
     for o in failed:
         threading.Thread(target=forward_order_to_cj, args=(o,), daemon=True).start()
     return jsonify(retrying=len(failed)), 202
-
-
+ 
+ 
 @app.post("/webhooks/shopify/orders")
 def shopify_orders():
     raw = request.get_data()
@@ -671,7 +713,7 @@ def shopify_orders():
         abort(401)
     threading.Thread(target=forward_order_to_cj, args=(json.loads(raw),), daemon=True).start()
     return "", 200
-
-
+ 
+ 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=env_i("PORT", 10000))
