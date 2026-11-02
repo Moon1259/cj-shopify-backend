@@ -1,0 +1,101 @@
+SKU,ProductName,Collection,Category,PriceUSD,Stock,Status,SourceNote
+IND-SAF-001,Safety Helmet Hard Hat White Industrial,Utilities,Safety Helmet,12.5,50,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-002,Welding Helmet Auto Darkening Industrial,Utilities,Welding Helmet,24.5,103,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-003,Safety Gloves Cut Resistant Work Gloves Industrial,Utilities,Safety Gloves,6.5,156,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-004,Welding Gloves Heat Resistant Cowhide Industrial,Utilities,Welding Gloves,11,209,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-005,Safety Goggles Anti-Fog Industrial,Utilities,Safety Goggles,5.5,262,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-006,Ear Muffs Noise Reduction Industrial,Utilities,Hearing Protection,14,315,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-007,Respirator Half Face Dual Cartridge Industrial,Utilities,Respirator,22,368,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-008,Safety Shoes Steel Toe Industrial,Utilities,Safety Footwear,38,421,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-009,Safety Harness Full Body Industrial,Utilities,Fall Protection,29,474,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-SAF-010,High Visibility Vest Reflective Industrial,Utilities,Hi-Vis,6,76,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic safety item
+IND-GRS-001,Spur Gear Industrial Steel Module 1 20 Teeth,Gears & Shafts,Spur Gear,8.5,129,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-002,Spur Gear Industrial Steel Module 2 30 Teeth,Gears & Shafts,Spur Gear,14,182,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-003,Spur Gear Industrial Brass Module 1 40 Teeth,Gears & Shafts,Spur Gear,11,235,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-004,Helical Gear Industrial Steel Module 1.5 25 Teeth,Gears & Shafts,Helical Gear,19,288,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-005,Helical Gear Industrial Steel Module 2 40 Teeth,Gears & Shafts,Helical Gear,28,341,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-006,Gear Rack Industrial Steel Module 1 1000mm,Gears & Shafts,Gear Rack,24,394,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-007,Gear Rack Industrial Steel Module 2 500mm,Gears & Shafts,Gear Rack,21,447,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-008,Gear Rack and Pinion Industrial Set Module 1.5,Gears & Shafts,Gear Rack,36,500,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-009,Shaft Industrial Hardened Steel 10mm x 300mm,Gears & Shafts,Shaft,7.5,102,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-010,Shaft Industrial Hardened Steel 20mm x 500mm,Gears & Shafts,Shaft,15,155,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-011,Linear Shaft Industrial Chrome Plated 12mm x 400mm,Gears & Shafts,Shaft,13,208,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-012,Shaft Industrial Stainless Steel Keyed 25mm x 600mm,Gears & Shafts,Shaft,26,261,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-GRS-013,Sprocket Industrial Steel 08B 15 Teeth,Gears & Shafts,Sprocket,9,314,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-001,V-Belt B Type Drive Belt Industrial 1000mm,Pulleys & Belts,Industrial Belt,11,367,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-002,V-Belt Industrial A Type 800mm,Pulleys & Belts,Industrial Belt,6.5,420,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-003,V-Belt Industrial C Type 1500mm,Pulleys & Belts,Industrial Belt,16,473,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-004,V-Belt Industrial SPA Wedge 1250mm,Pulleys & Belts,Industrial Belt,12,75,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-005,Timing Belt Industrial HTD 5M 15mm Width 600mm,Pulleys & Belts,Timing Belt,9,128,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-006,Timing Belt Industrial GT2 6mm Width 2m,Pulleys & Belts,Timing Belt,7,181,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-007,Timing Belt Industrial T10 25mm Width 1000mm,Pulleys & Belts,Timing Belt,18,234,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-008,Synchronous Belt Industrial Open-End Rubber 5m,Pulleys & Belts,Timing Belt,26,287,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-009,Conveyor Belt Industrial PVC 500mm Wide per Meter,Pulleys & Belts,Conveyor Belt,24,340,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-010,Serpentine Belt Industrial Ribbed 6PK 1200mm,Pulleys & Belts,Industrial Belt,15,393,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-011,Belt Tensioner Industrial Adjustable Idler,Pulleys & Belts,Belt Tensioner,32,446,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-012,Pulley Industrial V-Groove Cast Iron Single Groove 100mm,Pulleys & Belts,Pulley,17,499,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BLT-013,Timing Pulley Industrial Aluminum HTD 5M 30 Teeth,Pulleys & Belts,Pulley,12,101,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-001,Ball Bearing 6205 Industrial Generic,Bearings & Linear Rails,Bearing,7.5,154,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-002,Ball Bearing 6204 Industrial Generic 2RS Sealed,Bearings & Linear Rails,Bearing,5.5,207,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-003,Ball Bearing 6305 Industrial Deep Groove Generic,Bearings & Linear Rails,Bearing,8.5,260,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-004,Ball Bearing 608 Industrial Miniature Generic Pack of 10,Bearings & Linear Rails,Bearing,6.5,313,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-005,Roller Bearing Industrial Tapered 30205 Generic,Bearings & Linear Rails,Bearing,11,366,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-006,Roller Bearing Industrial Cylindrical NU205 Generic,Bearings & Linear Rails,Bearing,15,419,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-007,Roller Bearing Industrial Needle HK2020 Generic,Bearings & Linear Rails,Bearing,7,472,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-008,Pillow Block Bearing Industrial UCP205 Generic,Bearings & Linear Rails,Pillow Block,13,74,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-009,Pillow Block Bearing Industrial UCP208 Generic,Bearings & Linear Rails,Pillow Block,22,127,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-010,Bearing Housing Industrial Cast Iron 205 Generic,Bearings & Linear Rails,Bearing Housing,15,180,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-011,Linear Rail Guide Industrial MGN12 500mm with Carriage,Bearings & Linear Rails,Linear Rail,29,233,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-012,Linear Guide Industrial HGR20 1000mm with Block,Bearings & Linear Rails,Linear Rail,69,286,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-BRG-013,Linear Rail Guide Industrial SBR16 Supported Rail 800mm,Bearings & Linear Rails,Linear Rail,32,339,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-001,Drill Bit Industrial HSS Set 19 Pieces,Tools & Tool Kits,Drill Bit,14,392,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-002,Drill Bit Industrial Titanium Coated 10mm,Tools & Tool Kits,Drill Bit,5.5,445,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-003,Drill Bit Industrial Masonry SDS Plus 12mm,Tools & Tool Kits,Drill Bit,6,498,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-004,Wrench Industrial Adjustable 12 inch,Tools & Tool Kits,Wrench,11,100,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-005,Wrench Industrial Combination Set 12 Pieces,Tools & Tool Kits,Wrench,26,153,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-006,Wrench Industrial Torque Click Type 1/2 inch,Tools & Tool Kits,Wrench,38,206,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-007,Screwdriver Industrial Precision Set 32 Pieces,Tools & Tool Kits,Screwdriver,13,259,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-008,Screwdriver Industrial Insulated VDE Set 7 Pieces,Tools & Tool Kits,Screwdriver,24,312,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-009,Pliers Industrial Combination 8 inch,Tools & Tool Kits,Pliers,9,365,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-010,Belt Sander Industrial Benchtop 4 x 36 inch,Tools & Tool Kits,Belt Sander,118,418,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-011,Grease Gun Industrial Manual Heavy Duty 400cc,Tools & Tool Kits,Grease Gun,17,471,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-012,Tool Kit Industrial Maintenance 108 Pieces,Tools & Tool Kits,Tool Kit,56,73,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-TLS-013,Tool Kit Industrial Mechanic Socket Set 46 Pieces,Tools & Tool Kits,Tool Kit,34,126,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-001,Contactor Generic AC 3 Phase 25A 220V Coil,Electrical,Contactor,14,179,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-002,Contactor Generic AC 3 Phase 40A 24V Coil,Electrical,Contactor,19,232,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-003,Circuit Breaker Generic 3 Pole 63A MCB,Electrical,Circuit Breaker,12,285,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-004,Circuit Breaker Generic 1 Pole 32A DIN Rail,Electrical,Circuit Breaker,5.5,338,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-005,Circuit Breaker Generic Motor Protection 10-16A,Electrical,Circuit Breaker,24,391,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-006,Terminal Block Industrial DIN Rail 2.5mm Pack of 50,Electrical,Terminal Block,11,444,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-007,Terminal Block Industrial Screw Type 12 Position Strip,Electrical,Terminal Block,6.5,497,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-008,Cable Tie Industrial Nylon 4.8x300mm Pack of 100,Electrical,Cable Tie,5.5,99,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-009,Cable Tie Industrial Stainless Steel 7.9x300mm Pack of 50,Electrical,Cable Tie,14,152,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-010,Wire Industrial Copper Flexible 2.5mm 100m,Electrical,Wire,58,205,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-011,Relay Generic 24V DC 8 Pin 10A,Electrical,Relay,6.5,258,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-012,Relay Generic Solid State 40A SSR,Electrical,Relay,9,311,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELC-013,Switch Industrial Emergency Stop Push Button,Electrical,Switch,8,364,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-001,Proximity Sensor Industrial Inductive NPN M12 4mm,Electronics & SSD,Proximity Sensor,7,417,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-002,Proximity Sensor Industrial Inductive PNP M18 8mm,Electronics & SSD,Proximity Sensor,8.5,470,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-003,Proximity Sensor Industrial Capacitive M18,Electronics & SSD,Proximity Sensor,11,72,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-004,Proximity Sensor Industrial Photoelectric Diffuse,Electronics & SSD,Proximity Sensor,13,125,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-005,Limit Switch Industrial Roller Lever Micro,Electronics & SSD,Limit Switch,8,178,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-006,Limit Switch Industrial Heavy Duty Waterproof,Electronics & SSD,Limit Switch,15,231,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-007,Pressure Sensor Industrial 0-10 bar 4-20mA,Electronics & SSD,Pressure Sensor,19,284,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-008,Pressure Sensor Industrial 0-16 bar G1/4 Stainless,Electronics & SSD,Pressure Sensor,24,337,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-009,Industrial Sensor Generic Temperature PT100 Probe,Electronics & SSD,Sensor,9.5,390,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-010,Industrial Sensor Generic Ultrasonic Distance,Electronics & SSD,Sensor,16,443,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-011,Electronic Module Generic 4 Channel Relay Board Industrial,Electronics & SSD,Electronic Module,7,496,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-ELN-012,Electronic Module Generic Motor Driver 20A Industrial,Electronics & SSD,Electronic Module,12,98,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-001,Gate Valve Industrial Brass 1 inch,Mechanical,Valve,15,151,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-002,Ball Valve Industrial Stainless 1/2 inch,Mechanical,Valve,9,204,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-003,Ball Valve Industrial Brass 3 Way 1 inch,Mechanical,Valve,21,257,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-004,Hydraulic Hose Industrial 1/2 inch 2 Layer Steel Braid 1m,Mechanical,Hydraulic Hose,14,310,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-005,Pressure Gauge Industrial 0-10 bar Stainless 63mm,Mechanical,Pressure Gauge,9,363,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-006,Pump Industrial Centrifugal Water 750W,Mechanical,Pump,68,416,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-007,Air Filter Industrial Compressor Intake Element,Mechanical,Filter,8,469,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-008,Oil Filter Industrial Hydraulic Spin-On,Mechanical,Filter,12,71,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-009,O-Ring Industrial NBR Assortment Kit 382 Pieces,Mechanical,O-Ring,10,124,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-010,Mechanical Seal Industrial Water Pump 20mm,Mechanical,Mechanical Seal,14,177,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-011,Coupling Industrial Jaw Flexible 25mm,Mechanical,Coupling,11,230,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-012,Fastener Industrial Hex Bolt and Nut Assortment Kit,Mechanical,Fastener,14,283,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial
+IND-MEC-013,Screw Industrial Stainless Hex Socket M8 Assortment,Mechanical,Screw,12,336,PURE,PLACEHOLDER price/stock - not CJ data; sync overwrites with CJ cost x 1.3; generic industrial

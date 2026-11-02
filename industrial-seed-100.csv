@@ -1,0 +1,101 @@
+SKU,ProductName,Manufacturer,Category,SubCategory,PriceUSD,Stock,Status,SourceNote
+IND-SAF-001,Safety Helmet Hard Hat SecureFit H-700 Series - 3M,3M,Safety,Helmet,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-002,Safety Helmet Hard Hat V-Gard - MSA,MSA,Safety,Helmet,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-003,Safety Helmet Hard Hat Evolite - JSP,JSP,Safety,Helmet,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-004,Welding Helmet Speedglas 9100 - 3M,3M,Safety,Welding Helmet,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-005,Welding Helmet Viking 3350 Auto-Darkening - Lincoln Electric,Lincoln Electric,Safety,Welding Helmet,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-006,Safety Gloves HyFlex 11-840 - Ansell,Ansell,Safety,Gloves,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-007,Work Gloves HyFlex 11-801 - Ansell,Ansell,Safety,Gloves,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-008,Work Gloves M-Pact - Mechanix Wear,Mechanix Wear,Safety,Gloves,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-009,Cut Resistant Gloves HyFlex 11-518 - Ansell,Ansell,Safety,Gloves,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-010,Chemical Resistant Gloves AlphaTec - Ansell,Ansell,Safety,Gloves,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-011,Welding Gloves Cowhide MIG TIG - Lincoln Electric,Lincoln Electric,Safety,Gloves,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-012,Nitrile Gloves Industrial TouchNTuff 92-600 - Ansell,Ansell,Safety,Gloves,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-013,Fire Extinguisher ABC ProLine Pro 210 - Kidde,Kidde,Safety,Fire Safety,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-014,Fire Extinguisher ABC Dry Chemical B500 - Amerex,Amerex,Safety,Fire Safety,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-015,Fire Extinguisher ABC Red Line - Ansul,Ansul,Safety,Fire Safety,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-016,Fire Blanket 1.2 x 1.8 m - Kidde,Kidde,Safety,Fire Safety,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-017,Fire Hose Layflat 1.5 inch - Angus Fire,Angus Fire,Safety,Fire Safety,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-018,Fire Proximity Suit Aluminized - Newtex,Newtex,Safety,Fire Protective Clothing,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-019,Fire Resistant Clothing FR Coverall - Bulwark,Bulwark,Safety,Fire Protective Clothing,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-020,Firefighter Suit Structural Turnout V-Force - Lion,Lion,Safety,Fire Protective Clothing,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-021,Firefighter Suit Structural Turnout - Morning Pride,Morning Pride,Safety,Fire Protective Clothing,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-022,Fire Dress Industrial FR Coverall - Carhartt,Carhartt,Safety,Fire Protective Clothing,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-023,Safety Goggles GoggleGear 500 Series - 3M,3M,Safety,Eye Protection,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-024,Safety Glasses Hypershock - Uvex,Uvex,Safety,Eye Protection,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-025,Safety Glasses Rush+ - Bolle Safety,Bolle Safety,Safety,Eye Protection,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-026,Face Shield Industrial WP96 - 3M,3M,Safety,Face Protection,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-027,Ear Muffs Peltor Optime 105 - 3M,3M,Safety,Hearing Protection,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-028,Ear Muffs Impact Sport - Howard Leight,Howard Leight,Safety,Hearing Protection,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-029,Ear Plugs Industrial Laser Lite - Howard Leight,Howard Leight,Safety,Hearing Protection,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-030,Ear Plugs Industrial E-A-R Classic - 3M,3M,Safety,Hearing Protection,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-031,Respirator Half Facepiece 6200 - 3M,3M,Safety,Respiratory,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-032,Dust Mask Industrial N95 8210 - 3M,3M,Safety,Respiratory,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-033,Gas Mask Full Facepiece 6800 - 3M,3M,Safety,Respiratory,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-034,Steel Toe Boots Pit Boss - Timberland PRO,Timberland PRO,Safety,Footwear,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-035,Safety Shoes Steel Toe Second Shift - Caterpillar,Caterpillar,Safety,Footwear,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-036,Safety Harness ExoFit NEX - 3M DBI-SALA,3M DBI-SALA,Safety,Fall Protection,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-037,High Visibility Vest Class 2 - Portwest,Portwest,Safety,Hi-Vis,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-038,Hi-Vis Jacket Waterproof - Portwest,Portwest,Safety,Hi-Vis,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SAF-039,Coveralls Industrial Tyvek 400 - DuPont,DuPont,Safety,Coveralls,,0,PURE,UNSOURCED - supplier quote needed
+IND-SAF-040,Safety Lockout Tagout Padlock 410 - Master Lock,Master Lock,Safety,Lockout Tagout,,0,PURE,UNSOURCED - supplier quote needed
+IND-VFD-041,VFD ACS880-01 Industrial Drive 5.5 kW - ABB,ABB,Automation,VFD,,0,PURE,UNSOURCED - supplier quote needed
+IND-VFD-042,VFD Sinamics V20 Inverter 2.2 kW - Siemens,Siemens,Automation,VFD,,0,PURE,UNSOURCED - supplier quote needed
+IND-VFD-043,VFD Altivar ATV320 Inverter 4 kW - Schneider Electric,Schneider Electric,Automation,VFD,,0,PURE,UNSOURCED - supplier quote needed
+IND-VFD-044,VFD VLT Micro Drive FC 51 Inverter 1.5 kW - Danfoss,Danfoss,Automation,VFD,,0,PURE,UNSOURCED - supplier quote needed
+IND-VFD-045,VFD FR-D720S Inverter 0.75 kW - Mitsubishi Electric,Mitsubishi Electric,Automation,VFD,,0,PURE,UNSOURCED - supplier quote needed
+IND-PLC-046,PLC S7-1200 CPU 1214C - Siemens,Siemens,Automation,PLC,,0,PURE,UNSOURCED - supplier quote needed
+IND-PLC-047,PLC CompactLogix 5380 Controller - Allen-Bradley,Allen-Bradley,Automation,PLC,,0,PURE,UNSOURCED - supplier quote needed
+IND-PLC-048,PLC Modicon M241 Logic Controller - Schneider Electric,Schneider Electric,Automation,PLC,,0,PURE,UNSOURCED - supplier quote needed
+IND-PLC-049,PLC FX5U Programmable Controller - Mitsubishi Electric,Mitsubishi Electric,Automation,PLC,,0,PURE,UNSOURCED - supplier quote needed
+IND-PLC-050,PLC CP1E Programmable Controller - Omron,Omron,Automation,PLC,,0,PURE,UNSOURCED - supplier quote needed
+IND-HMI-051,HMI KTP700 Basic Touch Panel - Siemens,Siemens,Automation,HMI,,0,PURE,UNSOURCED - supplier quote needed
+IND-BRG-052,Bearing 6205-2RSH Deep Groove Ball - SKF,SKF,Transmission,Bearing,,0,PURE,UNSOURCED - supplier quote needed
+IND-BRG-053,Bearing 6205DDU Deep Groove Ball - NSK,NSK,Transmission,Bearing,,0,PURE,UNSOURCED - supplier quote needed
+IND-BRG-054,Bearing 6205-2RSR Deep Groove Ball - FAG,FAG,Transmission,Bearing,,0,PURE,UNSOURCED - supplier quote needed
+IND-BRG-055,Bearing 6205-2RS Deep Groove Ball - Timken,Timken,Transmission,Bearing,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-BRG-056,Bearing 30205 Tapered Roller - Timken,Timken,Transmission,Bearing,,0,PURE,UNSOURCED - supplier quote needed
+IND-BRG-057,Bearing 22210 E Spherical Roller - SKF,SKF,Transmission,Bearing,,0,PURE,UNSOURCED - supplier quote needed
+IND-BLT-058,V-Belt B Type 1000mm Hi-Power - Gates,Gates,Transmission,V-Belt,,0,PURE,UNSOURCED - supplier quote needed
+IND-BLT-059,Synchronous Belt PowerGrip GT3 - Gates,Gates,Transmission,Timing Belt,,0,PURE,UNSOURCED - supplier quote needed
+IND-BLT-060,Timing Belt Synchroflex T10 - ContiTech,ContiTech,Transmission,Timing Belt,,0,PURE,UNSOURCED - supplier quote needed
+IND-BLT-061,Conveyor Belt Industrial PVC - ContiTech,ContiTech,Transmission,Conveyor Belt,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-BLT-062,V-Belt Super TX - Optibelt,Optibelt,Transmission,V-Belt,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-VLV-063,Valve Fisher ET Control Globe - Emerson,Emerson,Fluid Control,Valve,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-VLV-064,Valve Solenoid Series 8210 - ASCO,ASCO,Fluid Control,Valve,,0,PURE,UNSOURCED - supplier quote needed
+IND-VLV-065,Valve Solenoid Type 6013 - Burkert,Burkert,Fluid Control,Valve,,0,PURE,UNSOURCED - supplier quote needed
+IND-VLV-066,Valve Ball 40G Series - Swagelok,Swagelok,Fluid Control,Valve,,0,PURE,UNSOURCED - supplier quote needed
+IND-VLV-067,Valve Solenoid EV220B - Danfoss,Danfoss,Fluid Control,Valve,,0,PURE,UNSOURCED - supplier quote needed
+IND-PMP-068,Pump CM Centrifugal Water Industrial - Grundfos,Grundfos,Fluid Control,Pump,,0,PURE,UNSOURCED - supplier quote needed
+IND-PMP-069,Pump CR 5 Vertical Multistage - Grundfos,Grundfos,Fluid Control,Pump,,0,PURE,UNSOURCED - supplier quote needed
+IND-PMP-070,Pump Yonos PICO Circulation - Wilo,Wilo,Fluid Control,Pump,,0,PURE,UNSOURCED - supplier quote needed
+IND-PMP-071,Pump Etanorm Centrifugal - KSB,KSB,Fluid Control,Pump,,0,PURE,UNSOURCED - supplier quote needed
+IND-PMP-072,Pump Movitec Vertical Multistage - KSB,KSB,Fluid Control,Pump,,0,PURE,UNSOURCED - supplier quote needed
+IND-MTR-073,Motor 1LE1 Three-Phase 2.2 kW IE3 - Siemens,Siemens,Drives,Motor,,0,PURE,UNSOURCED - supplier quote needed
+IND-MTR-074,Motor M3BP Three-Phase 2.2 kW - ABB,ABB,Drives,Motor,,0,PURE,UNSOURCED - supplier quote needed
+IND-MTR-075,Motor W22 Three-Phase 2.2 kW IE3 - WEG,WEG,Drives,Motor,,0,PURE,UNSOURCED - supplier quote needed
+IND-MTR-076,Motor Super-E Three-Phase - Baldor,Baldor,Drives,Motor,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-MTR-077,Gearmotor DR Series - SEW-Eurodrive,SEW-Eurodrive,Drives,Motor,,0,PURE,UNSOURCED - supplier quote needed
+IND-SEN-078,Sensor Photoelectric WL Series Industrial - SICK,SICK,Automation,Sensor,,0,PURE,UNSOURCED - supplier quote needed
+IND-SEN-079,Sensor Inductive Proximity IME Series - SICK,SICK,Automation,Sensor,,0,PURE,UNSOURCED - supplier quote needed
+IND-SEN-080,Sensor Inductive Proximity NBB Series - Pepperl+Fuchs,Pepperl+Fuchs,Automation,Sensor,,0,PURE,UNSOURCED - supplier quote needed
+IND-SEN-081,Sensor Inductive Efector IGS - ifm,ifm,Automation,Sensor,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-SEN-082,Sensor Inductive Proximity BES Series - Balluff,Balluff,Automation,Sensor,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-083,Contactor LC1D09 - Schneider Electric,Schneider Electric,Electrical,Contactor,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-084,Contactor AF09 - ABB,ABB,Electrical,Contactor,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-085,Circuit Breaker Motor Protection 3RV2011 - Siemens,Siemens,Electrical,Circuit Breaker,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-086,Circuit Breaker Miniature MCB DX3 - Legrand,Legrand,Electrical,Circuit Breaker,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-087,Circuit Breaker Motor Protective PKZM0 - Eaton,Eaton,Electrical,Circuit Breaker,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-088,Overload Relay TeSys LRD Thermal - Schneider Electric,Schneider Electric,Electrical,Relay,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-089,Terminal Block UT 4 - Phoenix Contact,Phoenix Contact,Electrical,Terminal,,0,PURE,UNSOURCED - supplier quote needed
+IND-ELC-090,Relay Solid State G3NA - Omron,Omron,Electrical,Relay,,0,PURE,UNSOURCED - supplier quote needed
+IND-PNE-091,Pneumatic Cylinder DSBC ISO 15552 - Festo,Festo,Pneumatics,Cylinder,,0,PURE,UNSOURCED - supplier quote needed
+IND-PNE-092,Pneumatic Cylinder CDQ2 Compact - SMC,SMC,Pneumatics,Cylinder,,0,PURE,UNSOURCED - supplier quote needed
+IND-VLV-093,Valve Pneumatic Solenoid SY5000 Industrial - SMC,SMC,Pneumatics,Valve,,0,PURE,UNSOURCED - supplier quote needed
+IND-PNE-094,Hydraulic Hose 301SN - Parker,Parker,Pneumatics,Hydraulic Hose,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-PNE-095,Pneumatic Fitting QS Push-in - Festo,Festo,Pneumatics,Fitting,,0,PURE,UNSOURCED - supplier quote needed
+IND-TLS-096,Drill Bit Set Industrial HSS-G - Bosch,Bosch,Tools,Drill Bits,,0,PURE,UNSOURCED - supplier quote needed; VERIFY brand/model pairing
+IND-TLS-097,Drill DCD996 Brushless Hammer - DeWalt,DeWalt,Tools,Drills,,0,PURE,UNSOURCED - supplier quote needed
+IND-TLS-098,Drill DHP482 Cordless Hammer Driver - Makita,Makita,Tools,Drills,,0,PURE,UNSOURCED - supplier quote needed
+IND-TLS-099,Multimeter 117 True RMS - Fluke,Fluke,Tools,Test Equipment,,0,PURE,UNSOURCED - supplier quote needed
+IND-TLS-100,Impact Wrench M18 FUEL - Milwaukee,Milwaukee,Tools,Wrenches,,0,PURE,UNSOURCED - supplier quote needed
